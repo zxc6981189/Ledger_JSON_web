@@ -44,9 +44,14 @@
         <div class="form-group">
           <div class="category-header">
             <label class="form-label"><i class="fa-solid fa-tags"></i> 花費項目</label>
-            <button type="button" id="btn-add-category" class="text-btn">
-              <i class="fa-solid fa-plus"></i> 新增項目
-            </button>
+            <div class="category-actions">
+              <button type="button" id="btn-reset-categories" class="text-btn text-muted" title="重置為預設項目">
+                <i class="fa-solid fa-rotate-left"></i> 重置預設
+              </button>
+              <button type="button" id="btn-add-category" class="text-btn">
+                <i class="fa-solid fa-plus"></i> 新增項目
+              </button>
+            </div>
           </div>
           <div class="category-grid" id="category-grid">
             <!-- Dynamically populated categories -->
@@ -58,7 +63,7 @@
           <label class="form-label"><i class="fa-solid fa-dollar-sign"></i> 花費金額</label>
           <div class="input-wrapper amount-input-wrapper">
             <span class="currency-symbol">$</span>
-            <input type="text" id="expense-amount" placeholder="0" readonly required>
+            <input type="number" id="expense-amount" placeholder="0" min="0" step="any" required>
             <button type="button" id="btn-open-calc" class="calc-trigger-btn">
               <i class="fa-solid fa-calculator"></i>
             </button>
@@ -187,8 +192,13 @@
             <label class="form-label">選擇圖示/表情符號</label>
             <div class="emoji-selector" id="emoji-selector">
               <span class="emoji-option active" data-emoji="🍔">🍔</span>
+              <span class="emoji-option" data-emoji="🍺">🍺</span>
+              <span class="emoji-option" data-emoji="☕">☕</span>
+              <span class="emoji-option" data-emoji="🍱">🍱</span>
               <span class="emoji-option" data-emoji="🚗">🚗</span>
+              <span class="emoji-option" data-emoji="🚌">🚌</span>
               <span class="emoji-option" data-emoji="🛍️">🛍️</span>
+              <span class="emoji-option" data-emoji="🛒">🛒</span>
               <span class="emoji-option" data-emoji="🎮">🎮</span>
               <span class="emoji-option" data-emoji="🏠">🏠</span>
               <span class="emoji-option" data-emoji="🩺">🩺</span>
@@ -197,6 +207,7 @@
               <span class="emoji-option" data-emoji="📚">📚</span>
               <span class="emoji-option" data-emoji="👔">👔</span>
               <span class="emoji-option" data-emoji="🎁">🎁</span>
+              <span class="emoji-option" data-emoji="🍷">🍷</span>
               <span class="emoji-option" data-emoji="📝">📝</span>
             </div>
           </div>

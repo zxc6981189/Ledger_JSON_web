@@ -74,23 +74,25 @@ document.addEventListener('DOMContentLoaded', () => {
   initModalEvents();
   
   // Amount field click triggers calculator
-  elAmount.addEventListener('click', openCalculator);
-  btnOpenCalc.addEventListener('click', (e) => {
-    e.stopPropagation();
-    openCalculator();
-  });
+  if (elAmount) elAmount.addEventListener('click', openCalculator);
+  if (btnOpenCalc) {
+    btnOpenCalc.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openCalculator();
+    });
+  }
   
   // Reset categories action
-  btnResetCategories.addEventListener('click', resetCategories);
+  if (btnResetCategories) btnResetCategories.addEventListener('click', resetCategories);
   
   // Add item action
-  btnAddItem.addEventListener('click', addItem);
+  if (btnAddItem) btnAddItem.addEventListener('click', addItem);
   
   // Clear ledger action
-  btnClearLedger.addEventListener('click', clearLedger);
+  if (btnClearLedger) btnClearLedger.addEventListener('click', clearLedger);
   
   // Submit action
-  btnGenerateJson.addEventListener('click', generateAndCopyJSON);
+  if (btnGenerateJson) btnGenerateJson.addEventListener('click', generateAndCopyJSON);
   
   // Initial draw of ledger
   renderLedger();
@@ -249,6 +251,12 @@ function openCalculator() {
 }
 
 function closeCalculator() {
+  const calculated = runCalculation();
+  if (!isNaN(calculated) && calculated > 0) {
+    elAmount.value = calculated;
+    updateJSONPreview();
+  }
+  
   elCalcOverlay.classList.remove('open');
   document.body.style.overflow = '';
 }
@@ -571,6 +579,7 @@ function updateJSONPreview() {
 
 // Add simple listeners on fields to live-update preview
 elDate.addEventListener('change', updateJSONPreview);
+elAmount.addEventListener('input', updateJSONPreview);
 elDesc.addEventListener('input', updateJSONPreview);
 
 function generateAndCopyJSON() {
