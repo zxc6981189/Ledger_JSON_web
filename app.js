@@ -5,12 +5,12 @@
 
 // --- Constants & State ---
 const DEFAULT_CATEGORIES = [
-  { id: 'food', name: '餐飲食品', emoji: '🍔', isDefault: true },
-  { id: 'transport', name: '交通出行', emoji: '🚗', isDefault: true },
-  { id: 'shopping', name: '購物消費', emoji: '🛍️', isDefault: true },
-  { id: 'entertainment', name: '娛樂消遣', emoji: '🎮', isDefault: true },
-  { id: 'medical', name: '醫療保健', emoji: '🩺', isDefault: true },
-  { id: 'others', name: '其他支出', emoji: '📝', isDefault: true }
+  { id: 'food', name: '食物', emoji: '🍱', isDefault: true },
+  { id: 'transport', name: '交通', emoji: '🚗', isDefault: true },
+  { id: 'shopping', name: '購物', emoji: '🛍️', isDefault: true },
+  { id: 'sports', name: '運動', emoji: '🏃', isDefault: true },
+  { id: 'rent', name: '租屋', emoji: '🏠', isDefault: true },
+  { id: 'travel', name: '旅遊', emoji: '✈️', isDefault: true }
 ];
 
 let categories = [];
@@ -132,16 +132,25 @@ function initTelegramMiniApp() {
 
 // --- Categories Management ---
 function loadCategories() {
-  const stored = localStorage.getItem('expense_categories');
-  if (stored) {
-    try {
-      categories = JSON.parse(stored);
-    } catch (e) {
-      categories = [...DEFAULT_CATEGORIES];
-    }
-  } else {
-    categories = [...DEFAULT_CATEGORIES];
+  const storedVersion = localStorage.getItem('categories_version');
+  const CURRENT_VERSION = 'v3_new_default_list';
+  
+  if (storedVersion !== CURRENT_VERSION) {
+    categories = DEFAULT_CATEGORIES.map(cat => ({ ...cat }));
     saveCategoriesToStorage();
+    localStorage.setItem('categories_version', CURRENT_VERSION);
+  } else {
+    const stored = localStorage.getItem('expense_categories');
+    if (stored) {
+      try {
+        categories = JSON.parse(stored);
+      } catch (e) {
+        categories = DEFAULT_CATEGORIES.map(cat => ({ ...cat }));
+      }
+    } else {
+      categories = DEFAULT_CATEGORIES.map(cat => ({ ...cat }));
+      saveCategoriesToStorage();
+    }
   }
   
   // Set default selection to the first item
