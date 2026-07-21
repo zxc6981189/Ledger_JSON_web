@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>記帳助手 | Telegram Mini App</title>
+  <!-- Google Fonts for Modern Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <!-- FontAwesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-area">
+        <div class="logo-icon"><i class="fa-solid fa-wallet"></i></div>
+        <div>
+          <h1>記帳助手</h1>
+          <p class="subtitle">Telegram 記帳表單工具</p>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Form -->
+    <main class="app-main">
+      <form id="expense-form" onsubmit="event.preventDefault();">
+
+        <!-- Date Picker Section -->
+        <div class="form-group">
+          <label class="form-label"><i class="fa-regular fa-calendar"></i> 選擇日期</label>
+          <div class="input-wrapper">
+            <input type="date" id="expense-date" required>
+          </div>
+        </div>
+
+        <!-- Category Grid Section -->
+        <div class="form-group">
+          <div class="category-header">
+            <label class="form-label"><i class="fa-solid fa-tags"></i> 花費項目</label>
+            <button type="button" id="btn-add-category" class="text-btn">
+              <i class="fa-solid fa-plus"></i> 新增項目
+            </button>
+          </div>
+          <div class="category-grid" id="category-grid">
+            <!-- Dynamically populated categories -->
+          </div>
+        </div>
+
+        <!-- Amount & Calculator Trigger -->
+        <div class="form-group">
+          <label class="form-label"><i class="fa-solid fa-dollar-sign"></i> 花費金額</label>
+          <div class="input-wrapper amount-input-wrapper">
+            <span class="currency-symbol">$</span>
+            <input type="text" id="expense-amount" placeholder="0" readonly required>
+            <button type="button" id="btn-open-calc" class="calc-trigger-btn">
+              <i class="fa-solid fa-calculator"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Note / Description -->
+        <div class="form-group">
+          <label class="form-label"><i class="fa-regular fa-comment-dots"></i> 備註說明 (選填)</label>
+          <div class="input-wrapper">
+            <input type="text" id="expense-desc" placeholder="例如：早餐、捷運、悠遊卡加值...">
+          </div>
+        </div>
+
+        <!-- Add Current Item to List -->
+        <div class="add-item-section">
+          <button type="button" id="btn-add-item" class="btn btn-add-item">
+            <i class="fa-solid fa-plus-circle"></i> 加入此筆項目
+          </button>
+        </div>
+      </form>
+
+      <!-- Ledger Section (Today's detail list) -->
+      <div class="ledger-card" id="ledger-section" style="display: none;">
+        <div class="ledger-header">
+          <span><i class="fa-solid fa-receipt"></i> 今日已加入明細</span>
+          <button type="button" id="btn-clear-ledger" class="text-btn text-danger">
+            <i class="fa-solid fa-trash-can"></i> 清空
+          </button>
+        </div>
+        <div class="ledger-list" id="ledger-list">
+          <!-- Dynamically populated rows -->
+        </div>
+        <div class="ledger-summary">
+          <div class="summary-item">
+            <span class="summary-label">項目數</span>
+            <span class="summary-value" id="ledger-count">0</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">總計金額</span>
+            <span class="summary-value total-amount" id="ledger-total">$0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit and Copy Section -->
+      <div class="action-section">
+        <button type="button" id="btn-generate-json" class="btn btn-primary" disabled>
+          <i class="fa-regular fa-copy"></i> 生成並複製 JSON
+        </button>
+      </div>
+
+      <!-- JSON Preview Card -->
+      <div class="preview-card" id="preview-card">
+        <div class="preview-header">
+          <span><i class="fa-solid fa-code"></i> JSON 預覽</span>
+          <span class="preview-status" id="preview-status">未複製</span>
+        </div>
+        <pre class="json-code"><code id="json-output">{}</code></pre>
+      </div>
+    </main>
+
+    <!-- Bottom Drawer Calculator Overlay -->
+    <div class="calc-overlay" id="calc-overlay">
+      <div class="calc-backdrop" id="calc-backdrop"></div>
+      <div class="calc-drawer">
+        <div class="calc-header">
+          <div class="calc-drag-handle"></div>
+          <div class="calc-title-bar">
+            <span><i class="fa-solid fa-calculator"></i> 金額計算機</span>
+            <button type="button" id="btn-close-calc" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+          <div class="calc-display-area">
+            <div class="calc-expression" id="calc-expression"></div>
+            <div class="calc-result-row">
+              <span class="calc-currency">$</span>
+              <span class="calc-result" id="calc-result">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Calculator Keypad -->
+        <div class="calc-keypad">
+          <button type="button" class="calc-btn fn" data-key="clear">C</button>
+          <button type="button" class="calc-btn fn" data-key="backspace"><i class="fa-solid fa-backspace"></i></button>
+          <button type="button" class="calc-btn op" data-key="/">&divide;</button>
+          <button type="button" class="calc-btn op" data-key="*">&times;</button>
+
+          <button type="button" class="calc-btn num" data-key="7">7</button>
+          <button type="button" class="calc-btn num" data-key="8">8</button>
+          <button type="button" class="calc-btn num" data-key="9">9</button>
+          <button type="button" class="calc-btn op" data-key="-">&minus;</button>
+
+          <button type="button" class="calc-btn num" data-key="4">4</button>
+          <button type="button" class="calc-btn num" data-key="5">5</button>
+          <button type="button" class="calc-btn num" data-key="6">6</button>
+          <button type="button" class="calc-btn op" data-key="+">+</button>
+
+          <div class="calc-keypad-bottom">
+            <div class="calc-num-pad-left">
+              <div class="calc-row">
+                <button type="button" class="calc-btn num" data-key="1">1</button>
+                <button type="button" class="calc-btn num" data-key="2">2</button>
+                <button type="button" class="calc-btn num" data-key="3">3</button>
+              </div>
+              <div class="calc-row">
+                <button type="button" class="calc-btn num zero" data-key="0">0</button>
+                <button type="button" class="calc-btn num" data-key=".">.</button>
+              </div>
+            </div>
+            <button type="button" class="calc-btn eq" data-key="equal"><i class="fa-solid fa-check"></i> 確定</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Category Modal -->
+    <div class="modal-overlay" id="category-modal">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>新增自訂項目</h3>
+          <button type="button" id="btn-close-modal" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">選擇圖示/表情符號</label>
+            <div class="emoji-selector" id="emoji-selector">
+              <span class="emoji-option active" data-emoji="🍔">🍔</span>
+              <span class="emoji-option" data-emoji="🚗">🚗</span>
+              <span class="emoji-option" data-emoji="🛍️">🛍️</span>
+              <span class="emoji-option" data-emoji="🎮">🎮</span>
+              <span class="emoji-option" data-emoji="🏠">🏠</span>
+              <span class="emoji-option" data-emoji="🩺">🩺</span>
+              <span class="emoji-option" data-emoji="💡">💡</span>
+              <span class="emoji-option" data-emoji="🍿">🍿</span>
+              <span class="emoji-option" data-emoji="📚">📚</span>
+              <span class="emoji-option" data-emoji="👔">👔</span>
+              <span class="emoji-option" data-emoji="🎁">🎁</span>
+              <span class="emoji-option" data-emoji="📝">📝</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">項目名稱</label>
+            <div class="input-wrapper">
+              <input type="text" id="new-category-name" placeholder="例如：早餐、咖啡、房租..." maxlength="10">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="btn-cancel-category" class="btn btn-secondary">取消</button>
+          <button type="button" id="btn-save-category" class="btn btn-primary">儲存項目</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toast-container"></div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
